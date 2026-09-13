@@ -471,6 +471,7 @@ main::-webkit-scrollbar { display: none; }
 
 .badge { font-size: 9px; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 9px; border-radius: 6px; }
 .badge-queued      { background: var(--bg); box-shadow: var(--sh-raise-sm); color: var(--muted); }
+.badge-claimed     { background: var(--bg); box-shadow: var(--sh-raise-sm); color: var(--muted); }
 .badge-downloading { background: var(--p-lo); box-shadow: var(--sh-sink); color: var(--p); }
 .badge-done        { background: rgba(52,211,153,0.1); box-shadow: var(--sh-sink); color: var(--ok); }
 .badge-error       { background: rgba(248,113,113,0.1); box-shadow: var(--sh-sink); color: var(--err); }
@@ -1560,7 +1561,9 @@ async function loadHistory() {
           <div class="hist-title">${esc(row.title||row.url)}</div>
           <div class="hist-meta"><span>${fmtLabel}</span><span>${fmtBytes(row.fileSize)}</span></div>
           <div class="hist-btns">
-            <button class="btn-save" onclick="saveFile('${row.id}','${esc(row.title||'download')}','${row.format}')">↓ Save</button>
+            ${row.localPath
+              ? `<div style="font-size:10px;color:var(--ok);padding:4px 0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(row.localPath)}">📁 In Downloads gespeichert</div>`
+              : `<button class="btn-save" onclick="saveFile('${row.id}','${esc(row.title||'download')}','${row.format}')">↓ Save</button>`}
             <button class="btn-del"  onclick="delRow('${row.id}')">🗑</button>
           </div>
         </div>
@@ -1594,8 +1597,8 @@ async function delRow(id) {
 }
 async function saveAll() {
   const data = await api('/api/downloads?limit=50');
-  const done = (data||[]).filter(d=>d.status==='done');
-  if (!done.length) { toast('Keine fertigen Downloads', 'info'); return; }
+  const done = (data||[]).filter(d=>d.status==='done' && !d.localPath);
+  if (!done.length) { toast('Keine Dateien zum Herunterladen', 'info'); return; }
   toast(`${done.length} Dateien werden gespeichert…`, 'info');
   for (const row of done) {
     await saveFile(row.id, row.title||'download', row.format);
