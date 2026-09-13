@@ -1524,11 +1524,11 @@ function renderActiveCard(d) {
           <div class="dl-title">${esc(d.title||d.url||'…')}</div>
           <div class="dl-meta"><span class="badge badge-${d.status}">${d.status}</span></div>
         </div>
-        ${(d.status==='queued'||d.status==='downloading') ? `<button class="btn-cancel" onclick="cancelDownload('${d.id}')">✕</button>` : ''}
+        ${(d.status==='queued'||d.status==='claimed'||d.status==='downloading') ? `<button class="btn-cancel" onclick="cancelDownload('${d.id}')">✕</button>` : ''}
       </div>
-      ${(d.status==='queued'||d.status==='downloading') ? `
+      ${(d.status==='queued'||d.status==='claimed'||d.status==='downloading') ? `
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div class="progress-row"><span>${pct}%</span><span>${d.eta?'ETA '+d.eta:(d.status==='queued'?'In Queue…':'Startet…')}</span></div>` : ''}
+        <div class="progress-row"><span>${pct}%</span><span>${d.eta?'ETA '+d.eta:(d.status==='queued'?'In Queue…':d.status==='claimed'?'Worker übernimmt…':'Startet…')}</span></div>` : ''}
     </div>`;
 }
 function removeActiveCard(id) {
